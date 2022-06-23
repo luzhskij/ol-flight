@@ -1,0 +1,60 @@
+@import "../../../../assets/styles/preset";
+
+@font-face {
+	font-family: icomoon;
+	src: url(/assets/fonts/icomoon.ttf);
+}
+
+.icon{
+	font-family: icomoon;
+	font-size: 90%;
+	display: inline-block;
+	color: inherit;
+	font-style: normal;
+	line-height: 1;
+	text-align: center;
+	text-transform: none;
+	//vertical-align: -0.125em;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.icon-transition{
+	transition: all .2s ease-in-out;
+}
+.icon-active{
+	color: $icons-accent;
+	cursor: pointer;
+}
+.icon-active:hover{
+	color: $icons-accent-hover;
+}
+
+.icon-arrow{
+	position: relative;
+	top: 50%;
+	right: 16px;
+	width: 10px;
+	transform: translateY(-50%);
+}
+.icon-arrow:before, .icon-arrow:after{
+	position: absolute;
+	width: 6px;
+	height: 1.5px;
+	background-color: currentColor;
+	border-radius: 2px;
+	content: "";
+	transition: transform .2s ease-in-out;
+}
+.icon-arrow:before{
+	transform: rotate(-45deg) translate(-2.5px);
+}
+.icon-arrow:after{
+	transform: rotate(225deg) translate(-2.5px);
+}
+.icon-arrow-reverse.icon-arrow:before{
+	transform: rotate(45deg) translate(-2.5px);
+}
+.icon-arrow-reverse.icon-arrow:after{
+	transform: rotate(135deg) translate(-2.5px);
+}

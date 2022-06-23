@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+	"target": "es2015",
+	"module": "es6",
+	"declaration": true,
+	"moduleResolution": "node",
+	"outDir": "./release",
+	"sourceMap": true,
+	"allowJs": true,
+	"checkJs": true,
+	"strict": true,
+	"jsx": "react",
+	"noImplicitAny": false,
+	"esModuleInterop": true,
+	"alwaysStrict": true,
+	"baseUrl": "./source",
+	"paths": {
+	  "@assets/*": [ "../assets/*" ],
+	  "@styles/*": [ "../assets/styles/*" ],
+	  "@core/*": [ "core/*" ],
+	  "@components/*": [ "components/*" ],
+	  "@layers/*": [ "layers/*" ],
+	  "@modules/*": [ "modules/*" ],
+	  "@utility/*": [ "utility/*" ]
+	}
+  },
+  "exclude": [
+	"node_modules/"
+  ],
+  "include": [
+	"source/*"
+  ]
+}

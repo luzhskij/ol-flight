@@ -1,0 +1,28 @@
+@import "../../../../assets/styles/preset";
+
+.typography{
+	font-family: $fonts;
+	font-size: 14px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.85);
+    overflow-wrap: break-word;
+	line-height: 1.56;
+}
+.typography-q{
+	color: inherit;
+}
+.typography-italic{
+	font-style: italic;
+}
+.typography-strong{
+	font-weight: bold;
+}
+.typography-link, .typography-link > a{
+	font-weight: bold;
+	color: $link;
+	cursor: pointer;
+	text-decoration: none;
+}
+.typography-transition{
+	transition: all .2s ease-in-out;
+}
