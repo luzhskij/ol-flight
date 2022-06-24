@@ -62,7 +62,7 @@ const AdditionLayerToolsStyle = ( feature, resolution ) => {
 			//fill: new OLStyle.Fill({ color: "#5fc5ff" }),
 			//stroke: new OLStyle.Stroke({ color: "#00000099", width: 2 }),
 			fill: new OLStyle.Fill({ color: "#000" }),
-			stroke: new OLStyle.Stroke({ color: "#fff", width: 2 }),
+			//stroke: new OLStyle.Stroke({ color: "#fff", width: 2 }),
 			text: text,
 			offsetX: -42,
 			offsetY: 1,
