@@ -46,14 +46,17 @@ const AdditionLayerToolsStyle = ( feature, resolution ) => {
 	let polyStyle = new OLStyle.Style({
 		fill: new OLStyle.Fill({
 			//color: "#cbe7ff9c"
-			color: "#cbe7ffd1"
+			//color: "#cbe7ffd1"
+			color: "#00000001"
 		}),
 		stroke: new OLStyle.Stroke({
-			color: "#67c8ff",
-			width: 3
+			//color: "#67c8ff",
+			//width: 3
+			color: "#00000001",
+			width: 1
 		}),
 		text: new OLStyle.Text({
-			font: 'normal 15px "Tahoma", "Open Sans", "Arial Unicode MS", "sans-serif"',
+			font: 'bold 15px "Tahoma", "Open Sans", "Arial Unicode MS", "sans-serif"',
 			placement: "point",
 			textAlign: "left",
 			//fill: new OLStyle.Fill({ color: "#5fc5ff" }),
@@ -88,8 +91,8 @@ const AdditionLayerToolsGeometry = ( data, coord, map: Map ) => {
 	let radiusY = 4000.0 * scale;
 	let halfRadius = radius / 2.0;
 	let halfRadiusY = radiusY / 2.0;
-	let paddingTop = 0;//10000.0 / 2.0;
-	let paddingLeft = 0;//4000.0 / 2.0;
+	let paddingTop = (radius / 2.0) * 0.7;
+	let paddingLeft = (radiusY / 2.0) * 0.7;
 	let collection = new OLGeometry.GeometryCollection();
 	let center = [ 
 		coord[ 0 ] + paddingLeft + halfRadius,  
@@ -161,7 +164,7 @@ const AdditionLayerLoader = ( map: Map, params, source, extent, projection ) => 
 
 			if( !data )
 				data = source.__featuresData[ key ] = {
-					delta: [ 10000.0 / 2.0, 4000.0 / 2.0 ]
+					delta: [ 0.0, 0.0 ]
 				};
 
 			data.initial = initialCoord;
