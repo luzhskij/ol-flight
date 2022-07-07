@@ -11,4 +11,13 @@ export default class VMath{
 	public static lerp( v0: number, v1: number, t: number ){
 		return v0 + t * (v1 - v0);
 	};
+	public static radians( degrees: number ) : number{
+		return degrees * (Math.PI / 180.0);
+	};
+	public static sign( value: number ) : number{
+		return value < 0 ? -1 : 1;
+	};	
+	public static abs( value: number ): number{
+		return value < 0 ? -value : value;
+	};
 }

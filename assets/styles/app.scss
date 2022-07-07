@@ -29,7 +29,7 @@
 	top: 0px;
 	left: 0px;
 	position: fixed;
-	background-color: #cbe7ffd1;
+	background-color: #cbe7ff;
 	border: 4px solid #67c8ff;
 	text-shadow: 0px 0px 2px #fff;
 	color: #000;
@@ -38,10 +38,23 @@
 	font-size: 15px;
 	padding: 3px 7px;
 	z-index: 10;
-	margin-left: 13px;
-	margin-top: -36px;
+	margin-left: -86px;
+	margin-top: -52px;
 	display: none;
 	user-select: none;
+	pointer-events: none;
+}
+.map-tooltip button{
+	pointer-events: all;
+	background-color: #f1f1f1;
+	border: 1px solid #dddddd;
+	color: #818181;
+}
+.map-tooltip button:hover{
+	background-color: #ffffff;
+}
+.map-tooltip button:active{
+	background-color: #aaaaaa;
 }
 .map-tooltip > div{
 	display: flex;

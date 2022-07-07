@@ -1,3 +1,5 @@
+import VMath from '@utility/vmath'
+import Collision, { CollisionHit, Ray } from '@utility/collision'
 import ol from 'ol'
 import Map from 'ol/Map'
 import { Group, Vector } from 'ol/layer'
@@ -34,18 +36,24 @@ const AdditionLayerStyle = ( feature ) => {
 };
 const AdditionLayerToolsStyle = ( feature, resolution ) => {
 
+	const key = feature.get( "key" );
+	const source = feature.get( "source" );
+	const map: Map = feature.get( "map" );
+	const data: any = source.__featuresData[ key ];	
 	let geometries = feature.getGeometry().getGeometries();
 	const poly = geometries[ 0 ];
 	const line = geometries[ 1 ];
-	let radius = 10000.0;
-	const scale = 100.0 / resolution;
+	//let radius = 10000.0;
+	//const scale = 100.0 / resolution;
 	//console.log( scale, resolution );
 
 	let text: string = feature.get( "n" ) + "\n" + feature.get( "name" );
 
 	let polyStyle = new OLStyle.Style({
+		zIndex: data.zIndex,
 		fill: new OLStyle.Fill({
 			//color: "#cbe7ff9c"
+			//color: "red"
 			//color: "#cbe7ffd1"
 			color: "#00000001"
 		}),
@@ -64,7 +72,7 @@ const AdditionLayerToolsStyle = ( feature, resolution ) => {
 			fill: new OLStyle.Fill({ color: "#000" }),
 			//stroke: new OLStyle.Stroke({ color: "#fff", width: 2 }),
 			text: text,
-			offsetX: -42,
+			offsetX: -36,
 			offsetY: 1,
 			rotation: 0
 		}),
@@ -83,35 +91,49 @@ const AdditionLayerToolsStyle = ( feature, resolution ) => {
 	return [ polyStyle, lineStyle ];
 };
 
-const AdditionLayerToolsGeometry = ( data, coord, map: Map ) => {
+export const AdditionLayerToolsGeometry = ( data, map: Map ) => {
 
 	var resolution = map.getView().getResolution();
-	let scale: number = (resolution || 1.0) / 100.0;
-	let radius = 10000.0 * scale;
-	let radiusY = 4000.0 * scale;
+	let scale2: number = (resolution || 1.0) / 100.0;	
+	let scale: number = VMath.clamp( (resolution || 1.0) / 100.0, 0.0, 1.56 );	
+	let radius = 8000.0 * scale2 * (data.expanded ? 2.2 : 1.0);
+	let radiusY = 4000.0 * scale2 * (data.expanded ? 2.7 : 1.0);	
+	//let radius = 8000.0 * scale2 * (data.expanded ? 1.0 : 1.0);
+	//let radiusY = 4000.0 * scale2 * (data.expanded ? 1.0 : 1.0);
 	let halfRadius = radius / 2.0;
 	let halfRadiusY = radiusY / 2.0;
-	let paddingTop = (radius / 2.0) * 0.7;
-	let paddingLeft = (radiusY / 2.0) * 0.7;
-	let collection = new OLGeometry.GeometryCollection();
 	let center = [ 
-		coord[ 0 ] + paddingLeft + halfRadius,  
-		coord[ 1 ] + paddingTop + halfRadiusY
+		data.initial[ 0 ] + Math.cos( data.angle ) * data.distance * scale, 
+		data.initial[ 1 ] + Math.sin( data.angle ) * data.distance * scale
 	];
 
-	//console.log( radius, resolution );
+	let paddingLeft = -halfRadius;//-radiusY;
+	let paddingTop = -halfRadiusY;//-radius;
+	let collection = new OLGeometry.GeometryCollection();
+
+	const hit = Collision.aabb2ray( 
+		center, [ halfRadius, halfRadiusY ], 
+		new Ray( data.initial, center )
+	) || new CollisionHit();
+
+	let corner = [
+		hit.position.x,
+		hit.position.y
+	];
+	data.center = center;
+	data.corner = corner;
 
 	collection.setGeometries([ 
 		new OLGeometry.Polygon([
 			[
-				[ coord[ 0 ] + paddingLeft, coord[ 1 ] + paddingTop ],
-				[ coord[ 0 ] + radius + paddingLeft, coord[ 1 ] + paddingTop ],
-				[ coord[ 0 ] + radius + paddingLeft, coord[ 1 ] + radiusY + paddingTop ],
-				[ coord[ 0 ] + paddingLeft, coord[ 1 ] + radiusY + paddingTop ]
+				[ center[ 0 ] + paddingLeft, center[ 1 ] + paddingTop ],
+				[ center[ 0 ] + radius + paddingLeft, center[ 1 ] + paddingTop ],
+				[ center[ 0 ] + radius + paddingLeft, center[ 1 ] + radiusY + paddingTop ],
+				[ center[ 0 ] + paddingLeft, center[ 1 ] + radiusY + paddingTop ]
 			]
 		]),
 		new OLGeometry.LineString([
-			center, data.initial
+			corner, data.initial
 		]),		
 	]);
 
@@ -149,7 +171,7 @@ const AdditionLayerLoader = ( map: Map, params, source, extent, projection ) => 
 				});
 			feature.setId( item[ 0 ] );
 			feature.set( "name", item[ 1 ] || "" );
-			feature.set( "rotation", (item[ 10 ] || 0) * (Math.PI / 180.0) );
+			feature.set( "rotation", VMath.radians( item[ 10 ] || 0 ) );
 			feature.set( "longitude", (item[ 5 ] || 0) );
 			feature.set( "latitude", (item[ 6 ] || 0) );
 			feature.set( "velocity", (item[ 9 ] || 0) );
@@ -164,22 +186,21 @@ const AdditionLayerLoader = ( map: Map, params, source, extent, projection ) => 
 
 			if( !data )
 				data = source.__featuresData[ key ] = {
-					delta: [ 0.0, 0.0 ]
+					angle: VMath.radians( 45.0 ),
+					distance: 14000
 				};
 
 			data.initial = initialCoord;
-			const shiftedCoord = [ data.initial[ 0 ] + data.delta[ 0 ], data.initial[ 1 ] + data.delta[ 1 ] ];		
 
 			let feature: any = source.getFeatureById( key );
 
 			if( feature )
-				feature.setGeometry( AdditionLayerToolsGeometry( data, shiftedCoord, map ) );
+				feature.setGeometry( AdditionLayerToolsGeometry( data, map ) );
 			else
 				feature = new Feature({
-					geometry: AdditionLayerToolsGeometry( data, shiftedCoord, map ),
+					geometry: AdditionLayerToolsGeometry( data, map ),
 				});
 
-			data.shiftedCoord = shiftedCoord;
 
 			feature.setId( key );
 			feature.set( "tool", true );
@@ -191,7 +212,6 @@ const AdditionLayerLoader = ( map: Map, params, source, extent, projection ) => 
 			feature.set( "longitude", (item[ 5 ] || 0) );
 			feature.set( "latitude", (item[ 6 ] || 0) );
 			feature.set( "velocity", (item[ 9 ] || 0) );
-			feature.set( "shiftedCoord", shiftedCoord );
 			feature.setStyle( AdditionLayerToolsStyle );
 			return feature;
 		});	
@@ -216,16 +236,28 @@ class Drag extends PointerInteraction{
 	constructor(){
 		super({
 			//handleDownEvent: this.handleDownEvent,
-			handleUpEvent: () => {
+			handleUpEvent: ( event ) => {
+
+				if( !this.feature ){
+					return false;
+				};
+
+				const key = this.feature.get( "key" );
+				const source = this.feature.get( "source" );
+				const map: Map = this.feature.get( "map" );
+				const data: any = source.__featuresData[ key ];
+				data.dragging = false;
 				return false;
 			},
 		});
 		this.feature = null;
 		this.coords = [ 0, 0 ];
+		this.margin = [ 0, 0 ];
 	};	
 
 	feature: Feature | null;
 	coords: number[];
+	margin: number[];
 
 	protected handleDownEvent( event: ol.MapBrowserEvent<any> ): boolean{
 		var pixel = event.pixel;
@@ -236,7 +268,33 @@ class Drag extends PointerInteraction{
 		(this.feature as any) = feature && feature.get( "tool" ) ? feature : null;
 		this.coords = [ event.coordinate[ 0 ], event.coordinate[ 1 ] ];
 
-		return !!this.feature;		
+		if( !this.feature ){
+			this.margin = [ 0, 0 ];
+			return false;
+		};
+
+		const key = this.feature.get( "key" );
+		const source = this.feature.get( "source" );
+		const map: Map = this.feature.get( "map" );
+		const data: any = source.__featuresData[ key ];
+		var resolution = map.getView().getResolution();
+		let scale: number = VMath.clamp( (resolution || 1.0) / 100.0, 0.0, 1.56 );	
+		let point = [ 
+			data.initial[ 0 ] + Math.cos( data.angle ) * data.distance * scale, 
+			data.initial[ 1 ] + Math.sin( data.angle ) * data.distance * scale
+		];		
+		let center = [ 
+			point[ 0 ],
+			point[ 1 ]
+		];
+
+		this.margin = [ 
+			this.coords[ 0 ] - center[ 0 ], 
+			this.coords[ 1 ] - center[ 1 ]
+		];
+		data.dragging = true;
+
+		return !!this.feature;
 	};
 	protected handleDragEvent( event: ol.MapBrowserEvent<any> ){
 
@@ -246,18 +304,24 @@ class Drag extends PointerInteraction{
 		const key = this.feature.get( "key" );
 		const source = this.feature.get( "source" );
 		const map: Map = this.feature.get( "map" );
-		const collection: any = this.feature.getGeometry();
-		const delta: number[] = [ event.coordinate[ 0 ] - this.coords[ 0 ], event.coordinate[ 1 ] - this.coords[ 1 ] ];
 		const data: any = source.__featuresData[ key ];
+		var resolution = map.getView().getResolution();
+		let scale: number = VMath.clamp( (resolution || 1.0) / 100.0, 0.0, 1.56 );	
 
-		//(collection as OLGeometry.Geometry).translate( delta[ 0 ], delta[ 1 ] );
-		this.coords = [ event.coordinate[ 0 ], event.coordinate[ 1 ] ];
-		source.__featuresData[ key ].delta[ 0 ] += delta[ 0 ];
-		source.__featuresData[ key ].delta[ 1 ] += delta[ 1 ];
-		const shiftedCoord = [ data.initial[ 0 ] + data.delta[ 0 ], data.initial[ 1 ] + data.delta[ 1 ] ];	
-		source.__featuresData[ key ].shiftedCoord = shiftedCoord;
-		this.feature.set( "shiftedCoord", shiftedCoord );
-		this.feature.setGeometry( AdditionLayerToolsGeometry( data, shiftedCoord, map ) );	
+		event.coordinate[ 0 ] -= this.margin[ 0 ];
+		event.coordinate[ 1 ] -= this.margin[ 1 ];
+
+		const distance = Math.sqrt(
+			(data.initial[ 0 ] - event.coordinate[ 0 ]) * (data.initial[ 0 ] - event.coordinate[ 0 ]) 
+			+
+			(data.initial[ 1 ] - event.coordinate[ 1 ]) * (data.initial[ 1 ] - event.coordinate[ 1 ])
+		);	
+		const angle = Math.atan2( event.coordinate[ 1 ] - data.initial[ 1 ], event.coordinate[ 0 ] - data.initial[ 0 ] );
+
+		data.distance = distance / scale;
+		data.angle = angle;
+
+		this.feature.setGeometry( AdditionLayerToolsGeometry( data, map ) );	
 	};
 
 };
@@ -316,10 +380,7 @@ export const AdditionLayer = ( map: Map ) => {
 
 			const key = feature.get( "key" );
 			let data: any = (source as any).__featuresData[ key ];
-			const shiftedCoord = [ data.initial[ 0 ] + data.delta[ 0 ], data.initial[ 1 ] + data.delta[ 1 ] ];
-			(source as any).__featuresData[ key ].shiftedCoord = shiftedCoord;	
-			feature.set( "shiftedCoord", shiftedCoord );
-			feature.setGeometry( AdditionLayerToolsGeometry( data, shiftedCoord, map ) );	
+			feature.setGeometry( AdditionLayerToolsGeometry( data, map ) );	
 
 		});	
 

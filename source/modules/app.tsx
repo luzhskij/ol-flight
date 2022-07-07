@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
-import { AdditionLayer } from "@layers/addition"
+import { AdditionLayer, AdditionLayerToolsGeometry } from "@layers/addition"
 
 import 'ol/ol.css';
 import 'ol-layerswitcher/dist/ol-layerswitcher.css';
@@ -24,7 +24,9 @@ export const App = ( props: any ) => {
 	const [ tooltip, setTooltip ] = useState<any>({ 
 		visible: false,
 		coord: [ 0, 0 ],
-		params: {}
+		params: {
+			id: -1
+		}
 	});
 	const [ selectedCoord , setSelectedCoord ] = useState<Coordinate>( [ 0, 0 ] as Coordinate );
 	const [ additionLayer, setAdditionLayer ] = useState<any>( null );
@@ -34,25 +36,77 @@ export const App = ( props: any ) => {
 
 	const displayTooltip = ( event ) => {
 
-		const clickedCoord = map.getCoordinateFromPixel( event.pixel );
-		const transormedCoord = transform( clickedCoord, "EPSG:3857", "EPSG:4326" );
-		setSelectedCoord( transormedCoord );
+		//const clickedCoord = map.getCoordinateFromPixel( event.pixel );
+		//const transormedCoord = transform( clickedCoord, "EPSG:3857", "EPSG:4326" );
+		//setSelectedCoord( transormedCoord );
 
-		var pixel = event.pixel;
-		var feature = map.forEachFeatureAtPixel( pixel, ( feature ) => {
-			return feature;
+		let pixel = event.pixel;
+		let same = false;
+		let t: any[] = [];
+		let feature = map.forEachFeatureAtPixel( pixel, ( g ) => {
+
+			if( tooltip.feature && (g.getId() == tooltip.feature.getId()) )
+				same = true;
+
+			t.push( g.getId() );	
+
+			return g;
 		});	
 
 		if( feature && !feature.get( "tool" ) )
 			feature = null;
 
+		if( !feature ){
+
+			if( !tooltip.feature )
+				return;
+
+			feature = tooltip.feature;	
+
+			const key = feature.get( "key" );
+			const source = feature.get( "source" );
+			const data: any = source.__featuresData[ key ];		
+
+			if( data.dragging )
+				return;
+
+			data.expanded = false;
+			feature.setGeometry( AdditionLayerToolsGeometry( data, map ) );	
+
+			setTooltip({
+				visible: false,
+				feature: null,
+				coord: [ 0, 0 ],
+				params: { id: -1 }
+			});			
+
+			return;
+		};	
+
+		//console.log( same, t, tooltip.feature ? tooltip.feature.getId() : -1  );	
+
+		if( tooltip.feature && same )
+			return;
+
+		//if( (feature.getId() == tooltip.params.id) )
+		//	return;	
+
 		let params = feature ? {
+			id: feature.getId(),
 			name: feature.get( "name" ),
 			rotation: feature.get( "rotation" ),
 			longitude: feature.get( "longitude" ),
 			latitude: feature.get( "latitude" ),
 			velocity: feature.get( "velocity" )
 		} : tooltip.params;
+
+		const key = feature.get( "key" );
+		const source = feature.get( "source" );
+		const data: any = source.__featuresData[ key ];		
+		data.expanded = true;
+		data.zIndex = (data.zIndex || 0) + 1;
+		console.log( data.zIndex );
+		feature.setGeometry( AdditionLayerToolsGeometry( data, map ) );	
 
 		setTooltip({
 			visible: !!feature,
@@ -104,12 +158,12 @@ export const App = ( props: any ) => {
 		if( !map )
 			return;
 
-		map.on( "click", displayTooltip );
+		map.on( "pointermove", displayTooltip );
 
 		return () => {
-			map.un( "click", displayTooltip );
+			map.un( "pointermove", displayTooltip );
 		};
-	}, [ map ]);
+	}, [ map, tooltip ]);
 	//^
 
 	//#Auto refresh
@@ -120,7 +174,7 @@ export const App = ( props: any ) => {
 		
 		let interval = setInterval(() => {
 			additionLayer.refreshLayers();
-		}, 2000 );
+		}, 5500 );
 
 		return () => {
 			clearInterval( interval );
@@ -138,13 +192,19 @@ export const App = ( props: any ) => {
 				return;
 
 			let params = feature ? {
+				id: feature.getId(),
 				name: feature.get( "name" ),
 				rotation: feature.get( "rotation" ),
 				longitude: feature.get( "longitude" ),
 				latitude: feature.get( "latitude" ),
 				velocity: feature.get( "velocity" )
 			} : tooltip.params;
-			var coordinate = feature.get( "shiftedCoord" );
+
+			const key = feature.get( "key" );
+			const source = feature.get( "source" );
+			const data: any = source.__featuresData[ key ];
+			
+			var coordinate = data.center;
 			var pixel = map.getPixelFromCoordinate( coordinate );
 		
 			setTooltip({
@@ -154,13 +214,15 @@ export const App = ( props: any ) => {
 				params: params
 			});
 
-		}, 1 );
+		}, 4 );
 
 		return () => {
 			clearInterval( interval );
 		};
 	}, [ tooltip.feature ]);
 	//^	
+
+	//console.log( tooltip.coord, tooltip.visible );
 
 	return (
 		<div className="app">
@@ -174,19 +236,22 @@ export const App = ( props: any ) => {
 				<div>
 					<p>name: </p>
 					<p>{ tooltip.params.name }</p>
-				</div>				
+				</div>	
 				<div>
-				<p>longitude: </p>
+					<p>longitude: </p>
 					<p>{ tooltip.params.longitude }</p>
 				</div>				
 				<div>
-				<p>latitude: </p>
+					<p>latitude: </p>
 					<p>{ tooltip.params.latitude }</p>
 				</div>
 				<div>
-				<p>velocity: </p>
+					<p>velocity: </p>
 					<p>{ tooltip.params.velocity }</p>
-				</div>			
+				</div>
+				<div>
+					<button onClick={() => console.log( 555 ) }>{ "Expand" }</button>
+				</div>		
 			</div>
 			<div ref={ mapElement } className="map"></div>
 			<div className="map-coord">
