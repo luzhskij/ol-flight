@@ -1,0 +1,75 @@
+.draw-btn {
+  position: absolute;
+  top: 220px;
+  right: 20px;
+  background-color: #175092;
+  color: white;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.ol-scale-line {
+  bottom: 20px;
+  left: 2%;
+  position: absolute;
+  .ol-scale-line-inner {
+    position: absolute;
+    bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.35);
+    border-color: black;
+    border-style: solid;
+    border-width: 0 2px 2px 2px;
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 0;
+    text-align: center;
+  }
+}
+
+.ol-mouse-position {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 14px;
+  padding: 0 5px 0 5px;
+  cursor: inherit;
+  background-color: #fff;
+  color: #4c4c4e;
+  opacity: 0.9;
+  border-radius: 1px;
+  z-index: 99;
+}
+
+.ol-zoom {
+  top: calc(100% - 0.5em * 3 - 1.375em * 18);
+  left: calc(100% - 0.5em * 2 - 1.375em);
+}
+
+.ol-zoomslider {
+  top: calc(100% - 4.5em * 5);
+  left: calc(100% - 0.5em * 2 - 1.375em);
+  height: 200px;
+}
+
+.ol-zoom-extent {
+  top: calc(100% - 4.643em * 5 - 1.375em * 4);
+  left: calc(100% - 0.5em * 2 - 1.375em);
+}
+
+
+.ol-layerswitcher {
+  display: inline-block;
+  background: rgba(30, 66, 138, 0.616);
+  padding: 0.5em;
+}
+
+.ol-layerswitcher .panel li label {
+  color: rgba(7, 7, 7, 0.616);
+}
+
+.ol-layerswitcher-buttons>div {
+  background: #3690;
+  color: #336699;
+}
