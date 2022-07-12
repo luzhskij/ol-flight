@@ -15,12 +15,6 @@ import { toMultiArcs } from "../utility/hutils";
 
 //import { get_current_zoom } from "./index";
 
-import "./assets/images/air_0.png";
-import "./assets/images/air_1.png";
-import "./assets/images/air_2.png";
-import "./assets/images/air_3.png";
-import "./assets/images/air_4.png";
-import "./assets/images/air_5.png";
 /**
  * generate styles
  */

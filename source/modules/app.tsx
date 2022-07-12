@@ -17,13 +17,16 @@ import VectorSource from "ol/source/Vector";
 import XYZ from "ol/source/XYZ";
 import { transform } from "ol/proj";
 import { Overlay } from "ol";
-import { Coordinate, toStringXY } from "ol/coordinate";
+
+import { Coordinate, toStringXY, toStringHDMS, format } from "ol/coordinate";
+import * as olCoordinate from "ol/coordinate";
 
 import * as olInteraction from "ol/interaction";
 import ScaleLine from "ol/control/ScaleLine";
 import FullScreen from "ol/control/FullScreen";
 import ZoomSlider from "ol/control/ZoomSlider";
 import Zoom from "ol/control/Zoom";
+import MousePosition from "ol/control/MousePosition";
 
 //import LayerSwitcher from "ol-layerswitcher";
 import { LayerSwitcherControl } from "./LayerSwitcherControl";
@@ -64,6 +67,30 @@ import {
 
 import { AddInfoLayers } from "../layers/InfoLayer";
 
+import { AddVectorLayers } from "../layers/VectorLayers";
+
+const mousePositionControl = new MousePosition({
+  coordinateFormat: function (coordinate) {
+    let lon = coordinate![0];
+    let lat = coordinate![1];
+    lon = lon % 360;
+    if (lon > 180) {
+      lon -= 360;
+    } else if (lon < -180) {
+      lon += 360;
+    }
+    let modifiedCoordinate = [lon, lat];
+    let crd1 = format(modifiedCoordinate, "{x}, {y}", 6);
+    let crd2 = toStringHDMS(modifiedCoordinate, 1);
+    return crd1 + " | " + crd2;
+  },
+  projection: "EPSG:4326",
+  className: "custom-mouse-position",
+  target: document.getElementById("mouse_position")!,
+  //placeholder: false,
+  placeholder: "", //-> так скрывается поле
+});
+
 export const AddControls = (map: Map) => {
   map.addControl(new Zoom());
   map.addControl(new ZoomSlider());
@@ -76,11 +103,10 @@ export const AddControls = (map: Map) => {
     zIndex: layerSetZIndexBase["progress"],
   });
   map.addControl(progress);
+  map.addControl(mousePositionControl);
 };
 
 export let openskyLayerGroup;
-
-//import { AddVectorLayers } from "../layers/VectorLayers";
 
 //------------------------
 
@@ -186,14 +212,26 @@ export const App = (props: any) => {
 
   let currZoom = get_current_zoom();
 
-  const saveLocalPos = () => {
-    let newZoom = get_current_zoom();
+  const saveLocalPos = (map: Map) => {
+    if (!map) {
+      return;
+    }
+
+    let newZoom = map.getView().getZoom();
+    console.info("zoom: " + newZoom);
+
     if (currZoom != newZoom) {
       currZoom = newZoom;
-      localStorage.setItem("zoom", newZoom);
+      localStorage.setItem("zoom", String(newZoom));
     }
-    localStorage.setItem("center", map.getView().getCenter());
+    let ccentr = map.getView().getCenter();
+    let x = ccentr![0];
+    let y = ccentr![1];
+    let xy: string = x + "," + y;
+    localStorage.setItem("center", xy);
   };
+
+  //-----
 
   useEffect(() => {
     const initialMap = new Map({
@@ -221,11 +259,18 @@ export const App = (props: any) => {
       initialMap.getView().setCenter(lastPos);
     }
 
+    initialMap.on("moveend", function (e) {
+      saveLocalPos(initialMap);
+    });
+
     AddControls(initialMap);
+
+    AddVectorLayers(initialMap);
 
     AddInfoLayers(initialMap);
 
     AdditionLayer(initialMap);
+
     openskyLayerGroup = new LayerGroup({
       // A layer must have a title to appear in the layerswitcher
       title: "OpenSky",
@@ -259,15 +304,6 @@ export const App = (props: any) => {
     };
   }, [map, tooltip]);
 
-  useEffect(() => {
-    if (!map) return;
-
-    map.on("moveend", saveLocalPos);
-
-    return () => {
-      map.un("moveend", saveLocalPos);
-    };
-  }, [map]);
   //^
 
   //#Auto refresh
