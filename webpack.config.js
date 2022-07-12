@@ -4,15 +4,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 
 module.exports = {
-	entry: "./source/main.tsx",
-	watch: true,
+	entry: "./source/main.tsx",	
 	watchOptions: {
 		aggregateTimeout: 50,
 		poll: 50
 	},
 	output: {
 		path: path.join(__dirname, "./release"),
-		filename: "main.js"
+		filename: "main.js",		
 	},
 	devtool: 'source-map',
 	module: {
@@ -60,8 +59,7 @@ module.exports = {
 	devServer: {
 		hot: false,
 		inline: false,
-		port: 7000,
-		host: "0.0.0.0",
+		port: 7000,		
 		historyApiFallback: {
 			index: 'index.html'
 		}
