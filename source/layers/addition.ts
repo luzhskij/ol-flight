@@ -17,8 +17,6 @@ import {
 	defaults as defaultInteractions,
 } from 'ol/interaction';
 
-
-
 export let openSkyLayer, openSkySource;
 
 import { layerSetZIndexBase } from "../modules/app";
@@ -26,6 +24,10 @@ import { layerSetZIndexBase } from "../modules/app";
 const AdditionLayerStyle = (feature) => {
 
 	//console.log( feature );
+	// let airangl = feature.get("rotation");
+	// let numicon = Math.round(airangl / 15);
+	// let iconname = "./assets/images/air_" + numicon + ".png";
+
 
 	let style = new OLStyle.Style({
 		image: new OLStyle.Icon({
@@ -157,7 +159,14 @@ const AdditionLayerLoader = (map: Map, params, source, extent, projection) => {
 		+ "&lamax=" + extent[3]
 		+ "&lomax=" + extent[2];
 
-	fetch("https://opensky-network.org/api/states/all?" + bb)
+	let username = "ap_luzhskij";
+	let password = "s@lo_22";
+	let headers = new Headers();
+	headers.set("Authorization", "Basic " + btoa(username + ":" + password));
+	let fetchOpts: RequestInit = { credentials: "include", headers: headers };
+	//let fetchOpts: RequestInit  = { credentials: "include" };
+
+	fetch("https://opensky-network.org/api/states/all?" + bb, fetchOpts)
 		.then((response) => response.json())
 		.then((response) => {
 

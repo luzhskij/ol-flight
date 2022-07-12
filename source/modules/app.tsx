@@ -28,6 +28,15 @@ import Zoom from "ol/control/Zoom";
 //import LayerSwitcher from "ol-layerswitcher";
 import { LayerSwitcherControl } from "./LayerSwitcherControl";
 
+import {
+  read_last_position,
+  get_last_zoom,
+  get_last_positions,
+} from "../utility/localStorage";
+
+import "ol-ext/control/ProgressBar.css";
+import ProgressBar from "ol-ext/control/ProgressBar";
+
 import { openSkyLayer } from "@layers/addition";
 
 export let layerSetZIndexBase = {
@@ -44,7 +53,15 @@ export let layerSetZIndexBase = {
   progress: 100,
 };
 
-import { AddTileLayers } from "../layers/TileLayers";
+import {
+  AddTileLayers,
+  localOsm,
+  localBing,
+  waterLayer,
+  osmLayer,
+  googlelayer,
+} from "../layers/TileLayers";
+
 import { AddInfoLayers } from "../layers/InfoLayer";
 
 export const AddControls = (map: Map) => {
@@ -52,6 +69,13 @@ export const AddControls = (map: Map) => {
   map.addControl(new ZoomSlider());
   map.addControl(new ScaleLine());
   map.addControl(new FullScreen());
+
+  let progress = new ProgressBar({
+    //label: 'Loading...',
+    layers: [localOsm, localBing, waterLayer, osmLayer, googlelayer],
+    zIndex: layerSetZIndexBase["progress"],
+  });
+  map.addControl(progress);
 };
 
 export let openskyLayerGroup;
@@ -153,14 +177,30 @@ export const App = (props: any) => {
     });
   };
 
+  const get_current_zoom = () => {
+    if (!map) {
+      return -1;
+    }
+    return map.getView().getZoom();
+  };
+
+  let currZoom = get_current_zoom();
+
+  const saveLocalPos = () => {
+    let newZoom = get_current_zoom();
+    if (currZoom != newZoom) {
+      currZoom = newZoom;
+      localStorage.setItem("zoom", newZoom);
+    }
+    localStorage.setItem("center", map.getView().getCenter());
+  };
+
   useEffect(() => {
     const initialMap = new Map({
       target: mapElement.current || undefined,
       layers: [],
       view: new View({
         projection: "EPSG:3857",
-        center: transform([37.6, 55.77], "EPSG:4326", "EPSG:3857"),
-        zoom: 10,
         maxZoom: 19,
         constrainResolution: true,
       }),
@@ -168,6 +208,20 @@ export const App = (props: any) => {
         .defaults()
         .extend([new olInteraction.PinchZoom()]),
     });
+
+    // Setups
+    initialMap.getView().setZoom(get_last_zoom());
+
+    let lastPos = get_last_positions();
+    if (!lastPos) {
+      initialMap
+        .getView()
+        .setCenter(transform([37.6, 55.77], "EPSG:4326", "EPSG:3857"));
+    } else {
+      initialMap.getView().setCenter(lastPos);
+    }
+
+    AddControls(initialMap);
 
     AddInfoLayers(initialMap);
 
@@ -187,7 +241,6 @@ export const App = (props: any) => {
     AddTileLayers(initialMap);
     //AddVectorLayers(initialMap);
 
-    AddControls(initialMap);
     LayerSwitcherControl(initialMap);
 
     setMap(initialMap);
@@ -205,6 +258,16 @@ export const App = (props: any) => {
       map.un("pointermove", displayTooltip);
     };
   }, [map, tooltip]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    map.on("moveend", saveLocalPos);
+
+    return () => {
+      map.un("moveend", saveLocalPos);
+    };
+  }, [map]);
   //^
 
   //#Auto refresh
