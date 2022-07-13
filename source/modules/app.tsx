@@ -234,15 +234,9 @@ export const App = (props: any) => {
   };
 
   const startTest = () => {
-    if(!testVectorLayer){
+    if (!testVectorLayer) {
       return;
     }
-    
-   
-    
-
-
-
   };
   //-----
 
@@ -278,9 +272,7 @@ export const App = (props: any) => {
       startTest();
     });
 
-    initialMap.on("singleclick", function (e) {
-     
-    });
+    initialMap.on("singleclick", function (e) {});
 
     AddControls(initialMap);
 

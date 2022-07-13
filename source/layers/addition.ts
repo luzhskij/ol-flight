@@ -159,8 +159,8 @@ const AdditionLayerLoader = (map: Map, params, source, extent, projection) => {
 		+ "&lamax=" + extent[3]
 		+ "&lomax=" + extent[2];
 
-	let username = "ap_luzhskij";
-	let password = "s@lo_22";
+	let username = "airfail";
+	let password = "07_Rumb@";
 	let headers = new Headers();
 	headers.set("Authorization", "Basic " + btoa(username + ":" + password));
 	let fetchOpts: RequestInit = { credentials: "include", headers: headers };

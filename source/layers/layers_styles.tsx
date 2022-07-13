@@ -302,7 +302,7 @@ export const styleFunctionExtPoint = (feature, resolution) => {
     anchor: [0.5, 0.5],
     anchorXUnits: "fraction",
     anchorYUnits: "fraction",
-    src: "../assets/img/empty.png",
+    src: "./assets/img/empty.png",
   });
 
   var lineStyle0 = new Style({});
@@ -312,35 +312,35 @@ export const styleFunctionExtPoint = (feature, resolution) => {
       anchor: [0.5, 0.5],
       anchorXUnits: "fraction",
       anchorYUnits: "fraction",
-      src: "../assets/img/aerpt4.png",
+      src: "./assets/img/aerpt4.png",
     });
 
     let hellIcon = new Icon({
       anchor: [0.5, 0.5],
       anchorXUnits: "fraction",
       anchorYUnits: "fraction",
-      src: "../assets/img/hell2.png",
+      src: "./assets/img/hell2.png",
     });
 
     let terminalIcon = new Icon({
       anchor: [0.5, 0.5],
       anchorXUnits: "fraction",
       anchorYUnits: "fraction",
-      src: "../assets/img/aerpterm.png",
+      src: "./assets/img/aerpterm.png",
     });
 
     let gateIcon = new Icon({
       anchor: [0.5, 0.5],
       anchorXUnits: "fraction",
       anchorYUnits: "fraction",
-      src: "../assets/img/gate.png",
+      src: "./assets/img/gate.png",
     });
 
     let otherIcon = new Icon({
       anchor: [0.5, 0.5],
       anchorXUnits: "fraction",
       anchorYUnits: "fraction",
-      src: "../assets/img/other.png",
+      src: "./assets/img/other.png",
     });
 
     let oneFeat = feature.get("features");

@@ -21,11 +21,13 @@ export const LayerSwitcherControl = (map: Map) => {
 
   // selected in tree
   layerSwitcherIni.on("drawlist", function (e) {
+    /*  --test--
     if (e.layer instanceof LayerGroup) {
       e.li.className = e.layer.get("visible") ? "visible" : "hidden";
     }
+    --test-- */
 
-    // The current laer
+    // The current layer
     let layer = e.layer;
   });
 
