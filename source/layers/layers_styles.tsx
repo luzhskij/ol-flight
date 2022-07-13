@@ -216,7 +216,7 @@ export function getStyleSwitcher(feature, res) {
 // -------------------------------------------------------------------
 
 // style for RSA polygon
-export let styleFunctionExtPoly = function (feature, resolution) {
+export const styleFunctionExtPoly = (feature, resolution) => {
   var geom = feature.getGeometry();
   var styles: Style[] = [];
 
@@ -293,7 +293,7 @@ export let styleFunctionExtPoly = function (feature, resolution) {
 };
 
 // style for ARP point
-export let styleFunctionExtPoint = function (feature, resolution) {
+export const styleFunctionExtPoint = (feature, resolution) => {
   let styles: Style[] = [];
 
   const fsize = feature.get("features").length;
@@ -387,7 +387,7 @@ export let styleFunctionExtPoint = function (feature, resolution) {
 };
 
 // style for TRACK lines
-export let styleFunctionExtLine = function (feature, resolution) {
+export const styleFunctionExtLine = (feature, resolution) => {
   if (feature.getGeometry().getType() != "MultiLineString") {
     toMultiArcs(feature);
   }
@@ -396,7 +396,7 @@ export let styleFunctionExtLine = function (feature, resolution) {
 
   let lineStyle0 = new Style({
     stroke: new Stroke({
-      color: "red",
+      color: "green",
       width: 4,
     }),
   });

@@ -28,6 +28,7 @@ import ZoomSlider from "ol/control/ZoomSlider";
 import Zoom from "ol/control/Zoom";
 import MousePosition from "ol/control/MousePosition";
 
+import { GeoJSON } from "ol/format";
 //import LayerSwitcher from "ol-layerswitcher";
 import { LayerSwitcherControl } from "./LayerSwitcherControl";
 
@@ -68,6 +69,7 @@ import {
 import { AddInfoLayers } from "../layers/InfoLayer";
 
 import { AddVectorLayers } from "../layers/VectorLayers";
+import { testVectorLayer, testVectorSource } from "../layers/VectorLayers";
 
 const mousePositionControl = new MousePosition({
   coordinateFormat: function (coordinate) {
@@ -231,6 +233,17 @@ export const App = (props: any) => {
     localStorage.setItem("center", xy);
   };
 
+  const startTest = () => {
+    if(!testVectorLayer){
+      return;
+    }
+    
+   
+    
+
+
+
+  };
   //-----
 
   useEffect(() => {
@@ -261,6 +274,12 @@ export const App = (props: any) => {
 
     initialMap.on("moveend", function (e) {
       saveLocalPos(initialMap);
+
+      startTest();
+    });
+
+    initialMap.on("singleclick", function (e) {
+     
     });
 
     AddControls(initialMap);
