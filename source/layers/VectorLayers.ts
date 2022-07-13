@@ -309,7 +309,7 @@ const create_nita_polygon_layer = () => {
     title: "RSA (Poly)",
     name: "rsa_poly",
     source: nitaPolyRSAsource,
-    visible: false,
+    visible: true,
     zIndex: layerSetZIndexBase["rsa_l"],
     style: styleFunctionExtPoly,
   } as any);
@@ -318,7 +318,7 @@ const create_nita_polygon_layer = () => {
 
 const create_nite_line_layer = () => {
   //------line track-------
-  let lfilter = ["type=line_track_vt","airway_type=1,2,3,4","airway_rnp=0,2,5,10","airway_typelevel=0,1,2"];
+  let lfilter = ["type=line_track_vt","airway_type=3,4","airway_rnp=0,2,5","airway_typelevel=0,1"];
 
   let params = {
     projection: null,
@@ -343,7 +343,7 @@ const create_nite_line_layer = () => {
     title: "Track (Line)",
     name: "track_line",
     source: nitaLineTracksource,
-    visible: false,
+    visible: true,
     zIndex: layerSetZIndexBase["tracks_l"],
     style: styleFunctionExtLine,
   } as any);
@@ -384,7 +384,7 @@ const create_nite_point_layer = () => {
     title: "ARP (Point)",
     name: "arp_point",
     source: nitaPointARPcluster,
-    visible: false,
+    visible: true,
     zIndex: layerSetZIndexBase["airports_l"],
     style: styleFunctionExtPoint,
   } as any);
@@ -400,9 +400,11 @@ export function create_nita_layers() {
   overlayNitaLayerGroup = new LayerGroup({
     // A layer must have a title to appear in the layerswitcher
     title: "NITA",
-    fold: "close",
-    visible: false,
+    fold: "open",
+    visible: true,
     layers: [nitaPolyRSAlayer, nitaLineTrackLayer, nitaPointARPlayer],
+    openInLayerSwitcher: true,
+    displayInLayerSwitcher: true,
   } as any);
 }
 /* NITA Layers */

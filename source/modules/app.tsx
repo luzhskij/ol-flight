@@ -71,6 +71,12 @@ import { AddInfoLayers } from "../layers/InfoLayer";
 import { AddVectorLayers } from "../layers/VectorLayers";
 import { testVectorLayer, testVectorSource } from "../layers/VectorLayers";
 
+import {
+  AddAsterixLayers,
+  exampleAsterixLayer,
+  asterix_prepare_work,
+} from "../layers/AsterixLayer";
+
 const mousePositionControl = new MousePosition({
   coordinateFormat: function (coordinate) {
     let lon = coordinate![0];
@@ -276,6 +282,17 @@ export const App = (props: any) => {
 
     AddControls(initialMap);
 
+    AddAsterixLayers(initialMap);
+    exampleAsterixLayer.on("change:visible", function () {
+      if (exampleAsterixLayer.getVisible()) {
+        asterix_prepare_work();
+      } else {
+        exampleAsterixLayer.getSource().forEachFeature(function (feature) {
+          exampleAsterixLayer.getSource().removeFeature(feature);
+        });
+      }
+    });
+
     AddVectorLayers(initialMap);
 
     AddInfoLayers(initialMap);
@@ -286,9 +303,9 @@ export const App = (props: any) => {
       // A layer must have a title to appear in the layerswitcher
       title: "OpenSky",
       layers: [openSkyLayer],
-      fold: "close",
-      visible: false,
-      openInLayerSwitcher: false,
+      fold: "open",
+      visible: true,
+      openInLayerSwitcher: true,
       displayInLayerSwitcher: true,
     } as any);
 

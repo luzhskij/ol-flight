@@ -366,7 +366,7 @@ export const AdditionLayer = (map: Map) => {
 		name: 'aircraft',
 		title: "OpenSky States",
 		source: source,
-		visible: false,
+		visible: true,
 		zIndex: layerSetZIndexBase["aircrafts"],
 	} as any);
 
